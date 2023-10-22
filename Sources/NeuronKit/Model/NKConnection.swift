@@ -16,7 +16,7 @@ public final class NKConnection: NKConnectionProtocol {
     private var connection: NWConnection
     private var queue = DispatchQueue(label: UUID().uuidString)
     
-    required init(url: URL) {
+    public required init(url: URL) {
         self.connection = NWConnection(to: .url(url), using: .options(from: url))
     }
     /// Start the connection to a
