@@ -9,7 +9,7 @@ import Foundation
 import Network
 
 
-final class NKConnection: NKConnectionProtocol {
+public final class NKConnection: NKConnectionProtocol {
     public var stateUpdateHandler: (NKConnectionState) -> Void = { _ in }
     private var transmitter: (NKTransmitter) -> Void = { _ in }
     

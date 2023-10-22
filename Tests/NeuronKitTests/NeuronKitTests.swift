@@ -5,17 +5,20 @@ final class NeuronKitTests: XCTestCase {
     func testExample() {
         let exp = expectation(description: "")
         let neuron = NKConnection(url: URL(string: "ws://localhost:8080/echo")!)
-        let bigData = Data(count: 1024 * 1024 * 50)
+        let bigData = Data(count: 1024 * 102)
         neuron.stateUpdateHandler = { state in
             switch state {
             case .ready: print("ready")
-                neuron.send(message: bigData)
+                for i in 0...100000 {
+                    neuron.send(message: bigData)
+                }
             case .cancelled: print("cancelled")
             case .failed(let error): if let error { print(error) } }
         }
         neuron.receive { message, bytes in
-            if case let message as Data = message {
-                neuron.send(message: bigData)
+            if case let message as String = message {
+                //print(message)
+                //neuron.send(message: bigData)
             }
         }
         neuron.start()
