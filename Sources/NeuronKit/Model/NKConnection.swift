@@ -19,17 +19,20 @@ public final class NKConnection: NKConnectionProtocol {
     public required init(url: URL) {
         self.connection = NWConnection(to: .url(url), using: .options(from: url))
     }
+    
     /// Start the connection to a
     /// compatible `WebSocket` server
     public func start() -> Void {
         handler(); receive()
         connection.start(queue: queue)
     }
+    
     /// Cancel all active `WebSocket` connections
     /// from the server
     public func cancel() -> Void {
         connection.cancel()
     }
+    
     /// Send a `WebSocket` compliant message
     /// - Parameter message: the message to be send
     public func send<T: NKConnectionMessage>(message: T) -> Void {
@@ -37,6 +40,7 @@ public final class NKConnection: NKConnectionProtocol {
         let data = message.content
         process(from: data, with: context)
     }
+    
     /// Receive `WebSocket` compliant messages
     /// - Parameter completion: completion block contains `NKConnectionMessage` and `NKConnectionBytes`
     public func receive(_ completion: @escaping (NKConnectionMessage?, NKConnectionBytes?) -> Void) -> Void {
@@ -62,6 +66,7 @@ private extension NKConnection {
             default: break }
         }
     }
+    
     /// Process the data that should be send to the server
     /// - Parameters:
     ///   - data: the transmit data
@@ -72,10 +77,11 @@ private extension NKConnection {
                 guard let self else { return }
                 transmitter(.bytes(.init(output: data.count)))
                 guard let error else { return }
-                print(error)
+                stateUpdateHandler(.failed(error))
             }))
         }
     }
+    
     /// Parse the received data from the server
     /// - Parameters:
     ///   - data: the received data
@@ -88,6 +94,7 @@ private extension NKConnection {
         case .binary: let message = data; transmitter(.message(message))
         default: break }
     }
+    
     /// Receive and parse the incoming data
     private func receive() -> Void {
         connection.batch {
@@ -95,7 +102,7 @@ private extension NKConnection {
                 guard let self else { return }
                 if let data = data, !data.isEmpty, let context = context { parse(from: data, with: context) }
                 guard let error else { receive(); return }
-                print(error)
+                stateUpdateHandler(.failed(error))
             }
         }
     }
